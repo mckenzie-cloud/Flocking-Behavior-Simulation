@@ -23,12 +23,13 @@
 #define WINDOW_WIDTH  720
 #define WINDOW_HEIGHT 360
 
+/** Generate random numbers. */
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<> d_float(0.0, 1.0);
 std::uniform_int_distribution<> d_int_color(1, 255);
-
 std::uniform_int_distribution<> d_int_perchTimer(100, 200);
+std::uniform_int_distribution<> d_int_n_boids(10, 100);
 
 class Boid
 {
@@ -122,7 +123,6 @@ private :
     unsigned int n_boids;
 
     /* Tunable parameters. */
-    float m               = 1.0f;
     float turnfactor      = 10.0f;
 
     float safety_distance = 30.0f, perceptual_distance = 150.0f;
@@ -144,6 +144,7 @@ private :
     int GroundLevel = WINDOW_HEIGHT-10;
 
 public :
+    float m               = 1.0f;
     Flock(unsigned int number_of_boids, sf::Vector2f init_pos) : n_boids{ number_of_boids }
     {
         for (unsigned int i=0; i<n_boids; i++)
@@ -424,7 +425,8 @@ int main(void)
     window.setVerticalSyncEnabled(true);
 
     // create flock
-    Flock flock(50, sf::Vector2f(WINDOW_WIDTH/2, WINDOW_HEIGHT/2));
+    int random_n_boids = d_int_n_boids(gen);
+    Flock flock(random_n_boids, sf::Vector2f(WINDOW_WIDTH/2, WINDOW_HEIGHT/2));
 
     while (window.isOpen())
     {
@@ -440,6 +442,19 @@ int main(void)
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     flock.setPlace(event.mouseButton.x, event.mouseButton.y);
+                }
+
+                if (event.mouseButton.button == sf::Mouse::Right)
+                {
+                    flock.m *= -1.0;
+                }
+            }
+
+            if (event.type == sf::Event::MouseButtonReleased)
+            {
+                if (event.mouseButton.button == sf::Mouse::Right)
+                {
+                    flock.m *= -1.0;
                 }
             }
         }
